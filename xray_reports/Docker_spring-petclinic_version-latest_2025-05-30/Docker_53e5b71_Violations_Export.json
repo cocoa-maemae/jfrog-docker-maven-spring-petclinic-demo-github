@@ -1,0 +1,173 @@
+[
+   {
+      "user_issue_id": "1928471626360115200",
+      "comp_id": "docker://spring-petclinic:latest",
+      "component_package_type": "docker",
+      "comp_name": "spring-petclinic",
+      "comp_version": "latest",
+      "type": "security",
+      "targets": null,
+      "issue_id": "XRAY-210934",
+      "paths": [
+         "default/jfrog-assessment-docker-local/spring-petclinic/latest/manifest.json"
+      ],
+      "watcher_id": "0e288de6d9dfe68457bd3cde",
+      "watcher_name": "Security_watch_1",
+      "matched_policies": [
+         {
+            "policy": "Security_policy_1",
+            "rule": "Critical_CVEs",
+            "is_blocking": false,
+            "blocking_mask": 0,
+            "is_skip_not_applicable": false
+         }
+      ],
+      "summary": "Dpkg::Source::Archive in dpkg, the Debian package management system, before version 1.21.8, 1.20.10, 1.19.8, 1.18.26 is prone to a directory traversal vulnerability. When extracting untrusted source packages in v2 and v3 source package formats that include a debian.tar, the in-place extraction can lead to directory traversal situations on specially crafted orig.tar and debian.tar tarballs.",
+      "severity": "Critical",
+      "updated": "2025-05-30T15:20:39Z",
+      "permissions": {},
+      "is_source_root": false,
+      "is_high_profile": true,
+      "high_profile_info": {
+         "id": 0,
+         "PublicVulnsTblID": 0,
+         "VulnId": "XRAY-210934",
+         "VulnerabilityTitle": "",
+         "ShortDescription": "Improper limitation of a pathname to a restricted directory in dpkg leads to arbitrary file overwrite when extracting a crafted package.",
+         "FullDescription": "dpkg, also known as Debian package management system, is the software at the base of the package management system in the free operating system Debian and its numerous derivatives. dpkg is used to install, remove, and provide information about .deb packages.\n\ndpkg packages containing a debian.tar tarball in it are processed differently by the extraction mechanism, as it uses the GNU tar to extract. GNU tar replaces entries on the filesystem by the entries present on the tarball, but it will follow symlinks when the symlink pathname itself is not present as an actual directory on the tarball.\n\nA symlink (also called a symbolic link) is a type of file in Linux that points to another file or a folder on your computer.\n\nThis means we can create a package with two tarballs: \n\n* A first one named `debian.tar` (it has to be this name) containing an entry within that symlink as if it was a directory. The directory entry for the symlink pathname itself should not exist so that the tar will be extracted following the symlink outside the source tree root.\n- A second tarball `orig.tar` where there's a symlink pointing out of the source tree root directory. Thus, the extraction process will get out of the actual directory which can lead to file overwrite wherever the symlink point on the filesystem.\n\nThis vulnerability leads to a directory traversal situation which can cause arbitrary file overwrite on the filesystem. \n\nWhile an attacker can exploit this vulnerability for overwriting arbitrary files, the actual applicability of the vulnerability exists only when a package is being extracted by dpkg and not when it is installed by dpkg. That is because the installation of an attacker-controlled package will anyway give the attacker the possibility of executing code in most cases, which is more powerful than overwriting arbitrary files.\n\nAn example of extraction of a pacakge with dpkg:\n`dpkg-deb -x package-to-extract.deb /path/where/to/extract/`",
+         "Impact": 5,
+         "VulnerabilityType": "Arbitrary File Overwrite",
+         "Resolution": "",
+         "ExtendedImpactReasons": [
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "Name": "The issue results in a severe impact (such as remote code execution)",
+               "Description": "By exploiting this vulnerability an attacker could replace arbitrary files, including critical system files when the extraction is executed in high privileges.",
+               "IsPositive": 0,
+               "InsertOrder": 3
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "Name": "The prerequisites for exploiting the issue are extremely unlikely",
+               "Description": "Even though extraction is part of the dpkg installation process, this vulnerability is only applicable when extracting a package without installing it because installing an untrusted package is a severe security issue in itself as it installs the attacker's malicious package with highest privileges and so, does not require this arbitrary file write vulnerability at all. \nThus, as dpkg is used to install packages in most cases, extracting a package without installing it is rare.",
+               "IsPositive": 1,
+               "InsertOrder": 1
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "Name": "Exploitation of the issue is only possible when the vulnerable component is used in a specific manner. The attacker has to perform per-target research to determine the vulnerable attack vector",
+               "Description": "Requires the user to extract the package through dpkg or a server code to extract packages using dpkg.\nExample: `dpkg-deb -x package-to-extract.deb /path/where/to/extract/it/`",
+               "IsPositive": 1,
+               "InsertOrder": 2
+            }
+         ],
+         "ExtendedReferences": [
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "RefType": "Advisory",
+               "Title": "Advisory",
+               "Url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/commit/?id=1f23dddc17f69c9598477098c7fb9936e15fa495",
+               "InsertOrder": 2
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "RefType": "Patch",
+               "Title": "Patch",
+               "Url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/commit/?id=faa4c92debe45412bfcf8a44f26e827800bb24be",
+               "InsertOrder": 3
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "RefType": "Patch",
+               "Title": "Patch",
+               "Url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/commit/?id=1f23dddc17f69c9598477098c7fb9936e15fa495",
+               "InsertOrder": 1
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "RefType": "Patch",
+               "Title": "Patch",
+               "Url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/commit/?id=7a6c03cb34d4a09f35df2f10779cbf1b70a5200b",
+               "InsertOrder": 4
+            },
+            {
+               "id": 0,
+               "PublicVulnsExtendedTblId": 0,
+               "RefType": "Patch",
+               "Title": "Patch",
+               "Url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/commit/?id=58814cacee39c4ce9e2cd0e3a3b9b57ad437eff5",
+               "InsertOrder": 5
+            }
+         ],
+         "ExtendedRelatedVulns": null
+      },
+      "cve_applicability_info": {
+         "scanner_available": true,
+         "component_id": "docker://spring-petclinic:latest",
+         "source_comp_id": "deb://debian:bullseye:dpkg:1.20.9",
+         "cve_id": "CVE-2022-1664",
+         "scan_status": 1,
+         "applicability": true,
+         "evidence": null,
+         "info": "Vulnerable use of dpkg/dpkg-deb/dpkg-source is found since a vulnerable flag is used",
+         "details": null
+      },
+      "applicability_detail": {
+         "component_id": "docker://spring-petclinic:latest",
+         "source_comp_id": "deb://debian:bullseye:dpkg:1.20.9",
+         "vulnerability_id": "CVE-2022-1664",
+         "result": "applicable"
+      },
+      "is_exposures_issue": false,
+      "is_package_issue": false,
+      "source": "debian:bullseye:dpkg",
+      "source_version": "1.20.9",
+      "source_id": "deb://debian:bullseye:dpkg",
+      "component_physical_paths": [
+         ""
+      ]
+   },
+   {
+      "user_issue_id": "1928471591614500864",
+      "comp_id": "docker://spring-petclinic:latest",
+      "component_package_type": "docker",
+      "comp_name": "spring-petclinic",
+      "comp_version": "latest",
+      "type": "security",
+      "targets": null,
+      "issue_id": "EXP-1681-00001",
+      "paths": [
+         "default/jfrog-assessment-docker-local/spring-petclinic/latest/manifest.json"
+      ],
+      "watcher_id": "0e288de6d9dfe68457bd3cde",
+      "watcher_name": "Security_watch_1",
+      "matched_policies": [
+         {
+            "policy": "Security_policy_1",
+            "rule": "High_Exposures",
+            "is_blocking": false,
+            "blocking_mask": 0,
+            "is_skip_not_applicable": false
+         }
+      ],
+      "summary": "Hardcoded secrets were found",
+      "severity": "High",
+      "updated": "2025-05-30T15:20:31Z",
+      "permissions": {},
+      "is_source_root": true,
+      "is_high_profile": false,
+      "is_exposures_issue": true,
+      "exposures_data": {},
+      "is_package_issue": false,
+      "source": "spring-petclinic",
+      "source_version": "latest",
+      "source_id": "docker://spring-petclinic"
+   }
+]
