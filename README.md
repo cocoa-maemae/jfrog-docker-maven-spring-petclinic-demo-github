@@ -5,8 +5,8 @@
 # clone
 git clone https://github.com/cocoa-maemae/2025-jfrog-technical-assessment.git
 
-# build source code
-cd 2025-jfrog-technical-assessment
+# build Java source code on local
+cd jfrog-docker-maven-spring-petclinic-demo-github
 ./mvnw package
 
 # build docker container image
