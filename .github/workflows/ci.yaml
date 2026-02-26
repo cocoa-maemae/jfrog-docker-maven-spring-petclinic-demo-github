@@ -43,6 +43,7 @@ jobs:
           java-version: ${{matrix.java}}
           distribution: 'adopt'
           cache: maven
+          mvn-version: '3.8.8'
 
       - name: Set environment variables based on branch
         run: |
