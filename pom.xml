@@ -281,11 +281,11 @@
       </plugin>
       <!-- Spring Boot Actuator displays sbom-related information if a CycloneDX SBOM file is
       present at the classpath -->
-      <plugin>
+      <!-- <plugin>
         <?m2e ignore?>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>
-      </plugin>
+      </plugin> -->
 
     </plugins>
   </build>
