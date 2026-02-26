@@ -12,12 +12,14 @@ permissions:
   contents: read
 
 env:
-  BUILD_NAME: "docker-maven-spring-petclinic"
-  REPO_PREFIX: "td-backend-maven"
+  JFROG_PROJECT_KEY: "td"
+  MVN_BUILD_NAME: "maven-spring-petclinic"
+  DOCKER_BUILD_NAME: "docker-spring-petclinic"
+  MVN_REPO_PREFIX: "backend-maven"
+  DOCKER_REPO_PREFIX: "backend-docker"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,7 +46,7 @@ jobs:
             echo "REPO_ENV=test" >> $GITHUB_ENV
           fi
 
-      - name: Configure AWS credentials    - name: Configure Maven
+      - name: Configure Maven
         run: |
           # Create minimal settings.xml to avoid security issues
           mkdir -p ~/.m2
@@ -65,18 +67,40 @@ jobs:
         run: |
           # Ping the server
           jf rt ping
+  
+      - name: Configure Maven to use Artifactory virtual repository based on branch and run tests, build and deploy
+        run: |
+          # Configure artifactory repositories based on env
+          MVN_VIRTUAL_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.MVN_REPO_PREFIX }}-${{ env.REPO_ENV }}-virtual"
+          MVN_LOCAL_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.MVN_REPO_PREFIX }}-${{ env.REPO_ENV }}-local"
+          MVN_REMOTE_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.MVN_REPO_PREFIX }}-${{ env.REPO_ENV }}-remote"
+          echo "Using Virtual Repo: $MVN_VIRTUAL_REPO"
 
+          # Configure Maven to use Artifactory virtual repository based on branch
+          jf mvnc \
+            --repo-resolve-snapshots $MVN_VIRTUAL_REPO \
+            --repo-resolve-releases $MVN_REMOTE_REPO \
+            --repo-deploy-snapshots $MVN_LOCAL_REPO \
+            --repo-deploy-releases $MVN_LOCAL_REPO
+        
+          # Run tests, build and deploy
+          jf mvn clean deploy \
+            --build-name=${{ env.MVN_BUILD_NAME }}-${{ env.REPO_ENV }} \
+            --build-number=${{ github.run_number }} \
+            --project ${{ env.JFROG_PROJECT_KEY }}
 
+      - name: Build and push Docker image with JFrog CLI
+        run: |
+          # Configure artifactory repositories based on env
+          DOCKER_VIRTUAL_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.DOCKER_REPO_PREFIX }}-${{ env.REPO_ENV }}-virtual"
+          DOCKER_LOCAL_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.DOCKER_REPO_PREFIX }}-${{ env.REPO_ENV }}-local"
+          DOCKER_REMOTE_REPO="${{ env.JFROG_PROJECT_KEY }}-${{ env.DOCKER_REPO_PREFIX }}-${{ env.REPO_ENV }}-remote"
+          echo "Using Virtual Repo: $DOCKER_VIRTUAL_REPO"
 
-      - name: Build with maven wrapper
-        run: ./mvnw package
-      - name: Execute tests with maven wrapper
-        run: ./mvnw test
-      - name: Build a Docker image
-        run: docker build -t spring-petclinic:latest .
-      - name: Login to JFrog Artifactory
-        run: echo "${{ secrets.JFROG_API_TOKEN }}" | docker login ${{ secrets.JFROG_URL }}/artifactory/${{ secrets.DOCKER_REPO }} -u${{ secrets.JFROG_USERNAME }} --password-stdin
-      - name: Tag Docker image for JFrog
-        run: docker tag spring-petclinic:latest ${{ secrets.JFROG_DOMAIN }}/${{ secrets.DOCKER_REPO }}/spring-petclinic:latest
-      - name: Push Docker image to JFrog Artifactory
-        run: docker push ${{ secrets.JFROG_DOMAIN }}/${{ secrets.DOCKER_REPO }}/spring-petclinic:latest
+          # Build and push Docker image to local repo
+          IMAGE_NAME="${{ secrets.JFROG_URL }}/artifactory/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
+          jf docker build -t $IMAGE_NAME .
+          jf docker push $IMAGE_NAME \
+            --build-name=${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} \
+            --build-number=${{ github.run_number }} \
+            --project=${{ env.JFROG_PROJECT_KEY }}
