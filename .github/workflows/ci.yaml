@@ -51,22 +51,22 @@ jobs:
             echo "REPO_ENV=test" >> $GITHUB_ENV
           fi
 
-      - name: Configure Maven
-        run: |
-          # Create minimal settings.xml to avoid security issues
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <settings>
-            <servers>
-              <server>
-                <id>soleng.jfrog.io</id>
-                <username>${{ secrets.JFROG_USERNAME }}</username>
-                <password>${{ secrets.JFROG_API_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
+      #- name: Configure Maven
+      #  run: |
+      #    # Create minimal settings.xml to avoid security issues
+      #    mkdir -p ~/.m2
+      #    cat > ~/.m2/settings.xml << EOF
+      #    <?xml version="1.0" encoding="UTF-8"?>
+      #    <settings>
+      #      <servers>
+      #        <server>
+      #          <id>soleng.jfrog.io</id>
+      #          <username>${{ secrets.JFROG_USERNAME }}</username>
+      #          <password>${{ secrets.JFROG_API_TOKEN }}</password>
+      #        </server>
+      #      </servers>
+      #    </settings>
+      #    EOF
        
       - name: Check JFrog connectivity
         run: |
