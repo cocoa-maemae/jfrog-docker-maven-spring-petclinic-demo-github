@@ -28,7 +28,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+   
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: https://soleng.jfrog.io 
+        with:
+          oidc-provider-name: tomokim-github-actions-integration 
+          oidc-audience: tomokim-github-actions-integration
+    
       - name: Set up JDK ${{matrix.java}}
         uses: actions/setup-java@v4
         with:
