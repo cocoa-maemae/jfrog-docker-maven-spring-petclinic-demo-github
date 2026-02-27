@@ -120,7 +120,7 @@ jobs:
           echo "Using Virtual Repo: $DOCKER_VIRTUAL_REPO"
 
           # Build and push Docker image to local repo
-          JF_DOMAIN=$(echo ${{ secrets.JFROG_URL }} | sed 's/https:\/\///')
+          JF_DOMAIN=soleng.jfrog.io
           IMAGE_NAME="${JF_DOMAIN}/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
           echo "Image name is: $IMAGE_NAME"
           
