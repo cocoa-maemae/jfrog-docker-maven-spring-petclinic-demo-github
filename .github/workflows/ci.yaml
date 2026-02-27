@@ -122,6 +122,8 @@ jobs:
           # Build and push Docker image to local repo
           JF_DOMAIN=$(echo ${{ secrets.JFROG_URL }} | sed 's/https:\/\///')
           IMAGE_NAME="${JF_DOMAIN}/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
+          echo "Image name is: $IMAGE_NAME"
+          
           jf docker build -t $IMAGE_NAME .
           jf docker push $IMAGE_NAME \
             --build-name=${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} \
