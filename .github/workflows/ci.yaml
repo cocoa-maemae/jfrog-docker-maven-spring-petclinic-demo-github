@@ -96,7 +96,19 @@ jobs:
           # Run tests, build and deploy
           jf mvn clean deploy \
             --build-name=${{ env.MVN_BUILD_NAME }}-${{ env.REPO_ENV }} \
-            --build-number=${{ github.run_number }} \
+            --build-number=$GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+
+          # Collect environment variables and add them to build (bce | build-collect-env)bad
+          jf rt bce ${{ env.MVN_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+        
+          # Collect VCS details from .git and add them to the build (bag | build-add-git)
+          jf rt bag ${{ env.MVN_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+
+          # Publish build info (bp | build-publish)
+          jf rt bp ${{ env.MVN_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
             --project ${{ env.JFROG_PROJECT_KEY }}
 
       - name: Build and push Docker image with JFrog CLI
@@ -108,9 +120,23 @@ jobs:
           echo "Using Virtual Repo: $DOCKER_VIRTUAL_REPO"
 
           # Build and push Docker image to local repo
-          IMAGE_NAME="${{ secrets.JFROG_URL }}/artifactory/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
+          JF_DOMAIN=$(echo ${{ secrets.JFROG_URL }} | sed 's/https:\/\///')
+          IMAGE_NAME="${JF_DOMAIN}/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
           jf docker build -t $IMAGE_NAME .
           jf docker push $IMAGE_NAME \
             --build-name=${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} \
-            --build-number=${{ github.run_number }} \
+            --build-number=$GITHUB_RUN_NUMBER \
             --project=${{ env.JFROG_PROJECT_KEY }}
+
+            # Collect environment variables and add them to build (bce | build-collect-env)bad
+          jf rt bce ${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+        
+          # Collect VCS details from .git and add them to the build (bag | build-add-git)
+          jf rt bag ${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+
+          # Publish build info (bp | build-publish)
+          jf rt bp ${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} $GITHUB_RUN_NUMBER \
+            --project ${{ env.JFROG_PROJECT_KEY }}
+
