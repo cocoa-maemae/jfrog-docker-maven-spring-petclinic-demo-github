@@ -122,9 +122,14 @@ jobs:
           # Build and push Docker image to local repo
           JF_DOMAIN=soleng.jfrog.io
           IMAGE_NAME="${JF_DOMAIN}/${DOCKER_VIRTUAL_REPO}/spring-petclinic:${{ github.run_number }}"
-          echo "Image name is: $IMAGE_NAME"
+          echo "docker Image name : $IMAGE_NAME"
+          JF_BASE_IMAGE="${JF_DOMAIN}/${DOCKER_VIRTUAL_REPO}/eclipse-temurin:17-jdk-focal"
+          echo "Docker base image: $JF_BASE_IMAGE"
           
-          jf docker build -t $IMAGE_NAME .
+          # build and push
+          jf docker build \
+            --build-arg BASE_IMAGE=$JF_BASE_IMAGE \
+            -t $IMAGE_NAME .
           jf docker push $IMAGE_NAME \
             --build-name=${{ env.DOCKER_BUILD_NAME }}-${{ env.REPO_ENV }} \
             --build-number=$GITHUB_RUN_NUMBER \
