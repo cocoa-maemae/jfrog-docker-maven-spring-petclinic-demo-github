@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  JFROG_PROJECT_KEY: "cocoamaemaeaws"
+  JFROG_PROJECT_KEY: "tdl"
   MVN_BUILD_NAME: "maven-spring-petclinic"
   DOCKER_BUILD_NAME: "docker-spring-petclinic"
   MVN_REPO_PREFIX: "backend-maven"
@@ -29,10 +29,11 @@ jobs:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: https://cocoamaemaeaws.jfrog.io 
+        # JFrog platform url (for example: https://acme.jfrog.io)
+          JF_URL: https://solenglatest.jfrog.io 
         with:
-          oidc-provider-name: cocoamaemaeaws-github-provider 
-          oidc-audience: cocoamaemaeaws-github-audience
+          oidc-provider-name: tomokim-solenglatest-github-oidc 
+          oidc-audience: tomokim-solenglatest-github-oidc-audience
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
